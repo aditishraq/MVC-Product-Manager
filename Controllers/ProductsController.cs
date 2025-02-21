@@ -42,8 +42,6 @@ namespace MvcApp.Controllers
         }
 
         // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "Id,Name,Price")] Product product)
@@ -53,7 +51,6 @@ namespace MvcApp.Controllers
                 db.Products.Add(product);
                 db.SaveChanges();
 
-                // If it's an AJAX request, return JSON instead of redirecting
                 if (Request.IsAjaxRequest())
                 {
                     return Json(new { success = true, message = "Product created successfully!" });
@@ -62,7 +59,6 @@ namespace MvcApp.Controllers
                 return RedirectToAction("Index");
             }
 
-            // If model state is invalid and it's an AJAX request, return JSON errors
             if (Request.IsAjaxRequest())
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors)
@@ -70,7 +66,6 @@ namespace MvcApp.Controllers
                 return Json(new { success = false, errors = errors });
             }
 
-            // Otherwise, re-display the form with validation errors
             return View(product);
         }
 
@@ -99,7 +94,6 @@ namespace MvcApp.Controllers
                 db.Entry(product).State = EntityState.Modified;
                 db.SaveChanges();
 
-                // If it's an AJAX request, return JSON instead of redirecting
                 if (Request.IsAjaxRequest())
                 {
                     return Json(new { success = true, message = "Product updated successfully!" });
@@ -108,7 +102,6 @@ namespace MvcApp.Controllers
                 return RedirectToAction("Index");
             }
 
-            // If model state is invalid and it's an AJAX request, return JSON errors
             if (Request.IsAjaxRequest())
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors)
@@ -116,7 +109,6 @@ namespace MvcApp.Controllers
                 return Json(new { success = false, errors = errors });
             }
 
-            // Otherwise, re-display the form with validation errors
             return View(product);
         }
 
@@ -144,6 +136,22 @@ namespace MvcApp.Controllers
             db.Products.Remove(product);
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        // POST: Products/AjaxDelete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AjaxDelete(int id)
+        {
+            Product product = db.Products.Find(id);
+            if (product == null)
+            {
+                return Json(new { success = false, message = "Product not found." });
+            }
+
+            db.Products.Remove(product);
+            db.SaveChanges();
+            return Json(new { success = true, message = "Product deleted successfully!" });
         }
 
         protected override void Dispose(bool disposing)
