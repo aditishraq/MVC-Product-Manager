@@ -52,22 +52,26 @@ namespace MvcApp.Controllers
             {
                 db.Products.Add(product);
                 db.SaveChanges();
+
+                // If it's an AJAX request, return JSON instead of redirecting
                 if (Request.IsAjaxRequest())
                 {
                     return Json(new { success = true, message = "Product created successfully!" });
                 }
+
                 return RedirectToAction("Index");
             }
 
+            // If model state is invalid and it's an AJAX request, return JSON errors
             if (Request.IsAjaxRequest())
             {
-                // Extract model state errors
                 var errors = ModelState.Values.SelectMany(v => v.Errors)
                                               .Select(e => new { e.ErrorMessage });
                 return Json(new { success = false, errors = errors });
             }
-            return View(product);
 
+            // Otherwise, re-display the form with validation errors
+            return View(product);
         }
 
         // GET: Products/Edit/5
@@ -86,18 +90,33 @@ namespace MvcApp.Controllers
         }
 
         // POST: Products/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Name,Price")] Product product)
+        public ActionResult Edit(Product product)
         {
             if (ModelState.IsValid)
             {
                 db.Entry(product).State = EntityState.Modified;
                 db.SaveChanges();
+
+                // If it's an AJAX request, return JSON instead of redirecting
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = true, message = "Product updated successfully!" });
+                }
+
                 return RedirectToAction("Index");
             }
+
+            // If model state is invalid and it's an AJAX request, return JSON errors
+            if (Request.IsAjaxRequest())
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors)
+                                              .Select(e => new { e.ErrorMessage });
+                return Json(new { success = false, errors = errors });
+            }
+
+            // Otherwise, re-display the form with validation errors
             return View(product);
         }
 
