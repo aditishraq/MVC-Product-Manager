@@ -16,21 +16,43 @@ namespace MvcApp.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Products
-        public ActionResult Index(string search, int? page)
+        public ActionResult Index(string search, string sortOrder, int? page)
         {
+            // Store the current sort order in ViewBag
+            ViewBag.CurrentSort = sortOrder;
+            // Set up sort parameters for the view (e.g., for toggling between asc/desc)
+            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewBag.PriceSortParm = sortOrder == "Price" ? "price_desc" : "Price";
+
             var products = db.Products.AsQueryable();
 
-            if (!string.IsNullOrEmpty(search))
+            if (!String.IsNullOrEmpty(search))
             {
                 products = products.Where(p => p.Name.Contains(search));
             }
 
-            ViewBag.Search = search;
+            // Apply sorting based on sortOrder
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    products = products.OrderByDescending(p => p.Name);
+                    break;
+                case "Price":
+                    products = products.OrderBy(p => p.Price);
+                    break;
+                case "price_desc":
+                    products = products.OrderByDescending(p => p.Price);
+                    break;
+                default: // Default sort: ascending by Name
+                    products = products.OrderBy(p => p.Name);
+                    break;
+            }
 
-            int pageSize = 5; // Number of products per page
+            ViewBag.Search = search;
+            int pageSize = 5;
             int pageNumber = (page ?? 1);
 
-            return View(products.OrderBy(p => p.Name).ToPagedList(pageNumber, pageSize));
+            return View(products.ToPagedList(pageNumber, pageSize));
         }
 
         // GET: Products/Details/5
