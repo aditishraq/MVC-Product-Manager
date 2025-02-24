@@ -8,6 +8,17 @@
 
 <h2>Product List</h2>
 
+
+<!-- Search form -->
+@using (Html.BeginForm("Index", "Products", FormMethod.Get))
+{
+    <div class="form-group">
+        <input type="text" name="search" value="@ViewBag.Search" placeholder="Search by name" class="form-control" style="max-width:300px; display:inline-block;" />
+        <input type="submit" value="Search" class="btn btn-primary" />
+    </div>
+}
+
+
 <table class="table">
     <tr>
         <th>@Html.DisplayNameFor(model => model.First().Name)</th>

@@ -15,9 +15,17 @@ namespace MvcApp.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Products
-        public ActionResult Index()
+        public ActionResult Index(string search)
         {
-            return View(db.Products.ToList());
+            var products = db.Products.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                products = products.Where(p => p.Name.Contains(search));
+            }
+
+            ViewBag.Search = search; // Pass the search term back to the view
+            return View(products.ToList());
         }
 
         // GET: Products/Details/5
