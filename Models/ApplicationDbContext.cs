@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Data.Entity;
-
+﻿using System.Data.Entity;
 
 namespace MvcApp.Models
 {
-	public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : DbContext
     {
-        // Constructor that specifies the connection string name
+        // Constructor specifying the connection string name.
         public ApplicationDbContext() : base("DefaultConnection")
         {
         }
 
-        // DbSet for products
-        public DbSet<Product> Products { get; set; }
+        // DbSet for your application entities, marked as virtual for testing.
+        public virtual DbSet<Product> Products { get; set; }
     }
 }

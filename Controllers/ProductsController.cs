@@ -16,6 +16,7 @@ namespace MvcApp.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Products
+        [AllowAnonymous]
         public ActionResult Index(string search, string sortOrder, int? page)
         {
             // Store the current sort order in ViewBag
@@ -56,6 +57,7 @@ namespace MvcApp.Controllers
         }
 
         // GET: Products/Details/5
+        [AllowAnonymous]
         public ActionResult Details(int? id)
         {
             if (id == null)
