@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using MvcApp.Models;
+using PagedList;
 
 namespace MvcApp.Controllers
 {
@@ -15,7 +16,7 @@ namespace MvcApp.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Products
-        public ActionResult Index(string search)
+        public ActionResult Index(string search, int? page)
         {
             var products = db.Products.AsQueryable();
 
@@ -24,8 +25,12 @@ namespace MvcApp.Controllers
                 products = products.Where(p => p.Name.Contains(search));
             }
 
-            ViewBag.Search = search; // Pass the search term back to the view
-            return View(products.ToList());
+            ViewBag.Search = search;
+
+            int pageSize = 5; // Number of products per page
+            int pageNumber = (page ?? 1);
+
+            return View(products.OrderBy(p => p.Name).ToPagedList(pageNumber, pageSize));
         }
 
         // GET: Products/Details/5

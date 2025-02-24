@@ -1,4 +1,5 @@
-﻿@model IEnumerable<MvcApp.Models.Product>
+﻿@model PagedList.IPagedList<MvcApp.Models.Product>
+@using PagedList.Mvc;
 
 @{
     ViewBag.Title = "Product List";
@@ -8,7 +9,6 @@
 
 <h2>Product List</h2>
 
-
 <!-- Search form -->
 @using (Html.BeginForm("Index", "Products", FormMethod.Get))
 {
@@ -17,7 +17,6 @@
         <input type="submit" value="Search" class="btn btn-primary" />
     </div>
 }
-
 
 <table class="table">
     <tr>
@@ -38,6 +37,11 @@
     }
 </table>
 
+<!-- Pagination Controls -->
+<div class="text-center">
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, search = ViewBag.Search }))
+</div>
+
 <div id="deleteResult"></div>
 
 @section Scripts {
@@ -51,11 +55,13 @@
                     $.ajax({
                         url: '@Url.Action("AjaxDelete", "Products")',
                         type: 'POST',
-                        data: { id: id, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                        data: {
+                            id: id,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
                         success: function (response) {
                             if (response.success) {
                                 $("#deleteResult").html("<div class='alert alert-success'>" + response.message + "</div>");
-                                // Optionally, remove the row from the table instead of reloading:
                                 $("button[data-id='" + id + "']").closest("tr").fadeOut();
                             } else {
                                 $("#deleteResult").html("<div class='alert alert-danger'>" + response.message + "</div>");
