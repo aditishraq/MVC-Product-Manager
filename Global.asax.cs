@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,6 +12,7 @@ namespace MvcApp
 {
     public class MvcApplication : System.Web.HttpApplication
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
@@ -18,6 +20,9 @@ namespace MvcApp
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            // Log that the application started
+            logger.Info("Application Started");
         }
     }
 }

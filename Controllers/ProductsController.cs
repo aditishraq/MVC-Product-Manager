@@ -8,53 +8,68 @@ using System.Web;
 using System.Web.Mvc;
 using MvcApp.Models;
 using PagedList;
+using NLog;
 
 namespace MvcApp.Controllers
 {
     public class ProductsController : Controller
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Products
         [AllowAnonymous]
         public ActionResult Index(string search, string sortOrder, int? page)
         {
-            // Store the current sort order in ViewBag
-            ViewBag.CurrentSort = sortOrder;
-            // Set up sort parameters for the view (e.g., for toggling between asc/desc)
-            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            ViewBag.PriceSortParm = sortOrder == "Price" ? "price_desc" : "Price";
+            // Log basic info about method parameters
+            logger.Info("Index action called with search: {0} and sortOrder: {1}", search, sortOrder);
 
-            var products = db.Products.AsQueryable();
-
-            if (!String.IsNullOrEmpty(search))
+            try
             {
-                products = products.Where(p => p.Name.Contains(search));
-            }
+                // Store the current sort order in ViewBag
+                ViewBag.CurrentSort = sortOrder;
+                // Set up sort parameters for the view (e.g., for toggling between asc/desc)
+                ViewBag.NameSortParm = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+                ViewBag.PriceSortParm = sortOrder == "Price" ? "price_desc" : "Price";
 
-            // Apply sorting based on sortOrder
-            switch (sortOrder)
+                var products = db.Products.AsQueryable();
+
+                if (!string.IsNullOrEmpty(search))
+                {
+                    products = products.Where(p => p.Name.Contains(search));
+                }
+
+                // Apply sorting based on sortOrder
+                switch (sortOrder)
+                {
+                    case "name_desc":
+                        products = products.OrderByDescending(p => p.Name);
+                        break;
+                    case "Price":
+                        products = products.OrderBy(p => p.Price);
+                        break;
+                    case "price_desc":
+                        products = products.OrderByDescending(p => p.Price);
+                        break;
+                    default: // Default sort: ascending by Name
+                        products = products.OrderBy(p => p.Name);
+                        break;
+                }
+
+                ViewBag.Search = search;
+                int pageSize = 5;
+                int pageNumber = (page ?? 1);
+
+                return View(products.ToPagedList(pageNumber, pageSize));
+            }
+            catch (Exception ex)
             {
-                case "name_desc":
-                    products = products.OrderByDescending(p => p.Name);
-                    break;
-                case "Price":
-                    products = products.OrderBy(p => p.Price);
-                    break;
-                case "price_desc":
-                    products = products.OrderByDescending(p => p.Price);
-                    break;
-                default: // Default sort: ascending by Name
-                    products = products.OrderBy(p => p.Name);
-                    break;
+                // Log the exception
+                logger.Error(ex, "Error occurred in Index action.");
+                throw; // Optionally rethrow the exception
             }
-
-            ViewBag.Search = search;
-            int pageSize = 5;
-            int pageNumber = (page ?? 1);
-
-            return View(products.ToPagedList(pageNumber, pageSize));
         }
+
 
         // GET: Products/Details/5
         [AllowAnonymous]
