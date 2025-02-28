@@ -19,7 +19,7 @@ namespace MvcApp.Controllers
         }
 
         // GET: api/products/5
-        [HttpGet, Route("{id:int}")]
+        [HttpGet, Route("{id:int}", Name = "GetProductById")]
         public IHttpActionResult GetProduct(int id)
         {
             var product = db.Products.Find(id);
@@ -41,8 +41,9 @@ namespace MvcApp.Controllers
 
             db.Products.Add(product);
             db.SaveChanges();
-            return CreatedAtRoute("DefaultApi", new { id = product.Id }, product);
+            return CreatedAtRoute("GetProductById", new { id = product.Id }, product);
         }
+
 
         // PUT: api/products/5
         [HttpPut, Route("{id:int}")]
